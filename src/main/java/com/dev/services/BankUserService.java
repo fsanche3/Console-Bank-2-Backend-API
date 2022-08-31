@@ -2,6 +2,7 @@ package com.dev.services;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -30,10 +31,10 @@ public class BankUserService {
 
 		boolean check;
 		List<BankUser> list = userRepo.findByUsername(user.getUsername());
-		if(list.size() == 0) {
+		if(!list.isEmpty()) {
 		userRepo.save(user);
 		check = true;
-
+		
 		log.info("Check passed: " + user.getUsername() +" is unique");
 
 		} else {
@@ -48,20 +49,19 @@ public class BankUserService {
 		log.info("Verifying Login for user "+ body.getUsername()+"");
 		
 		List<BankUser> userList = userRepo.findByUsername(body.getUsername());
-		BankUser user = userList.get(0);
-		
-		if(user == null ) {
-		log.info("Login authentication failed for username:  "+ body.getUsername()+"");
+	
+		if(userList.isEmpty()) {
+		log.info("Login authentication failed for username: "+ body.getUsername()+"");
 		return null;
-		}
-		
-		if(user.getPassword() == body.getPassword()) {
-			log.info("Login complete");
-			return user;
-		} 	
-		else {	
+		} else if(!userList.get(0).getPassword().equals(body.getPassword())) {	
+			log.info(body.getPassword());
+
 			log.info("Login authentication failed for password: "+body.getPassword()+"");
 			return null;
-		}
+		} 			
+
+		log.info("Login complete");
+		return new BankUser(userList.get(0).getId(), userList.get(0).getName(), userList.get(0).getUsername(), userList.get(0).getPassword(), userList.get(0).getEmail());	
+		
 	}
 }

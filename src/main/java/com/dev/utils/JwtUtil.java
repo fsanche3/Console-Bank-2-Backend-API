@@ -35,15 +35,11 @@ public class JwtUtil {
 		try {
 			
 			JWTVerifier verifier = getJwtVerifierr();
-			
 		    DecodedJWT jwt = verifier.verify(token);
-		    
 		    Map<String, Claim> claims = jwt.getClaims();  
 		    
 		    if ( claims.containsKey("id") ){
-		    	
 		    	Claim c = claims.get("id");
-		    	
 		    	id = c.asInt();
 		    }
 		    
@@ -51,7 +47,6 @@ public class JwtUtil {
 		    //Invalid signature/claims
 		}
 		return id;
-	   
    }
    
 	
