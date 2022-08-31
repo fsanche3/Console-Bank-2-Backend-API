@@ -19,7 +19,7 @@ public class ConsoleBankApplication {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**")
 					.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-					.allowedOrigins("null")
+					.allowedOrigins("*")
 					.allowedHeaders("*")
 					.exposedHeaders("Auth")
 					.allowCredentials(false);

@@ -33,7 +33,7 @@ public class AuthController {
 	}
 
 	@PostMapping()
-	public ResponseEntity<BankUser> loginPost(@RequestBody LoginRequest body) {
+	public ResponseEntity<String> loginPost(@RequestBody LoginRequest body) {
 
 		String token = "";
 
@@ -47,7 +47,7 @@ public class AuthController {
 			token = builder.withIssuer("auth0").withClaim("id", user.getId()).withClaim("name", user.getName())
 					.withClaim("username", user.getUsername()).withClaim("email", user.getEmail()).sign(algorithm);
 			
-			return ResponseEntity.status(200).header("Auth", token).body(user);
+			return ResponseEntity.status(200).header("Auth", token).body(token);
 		} else {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 
