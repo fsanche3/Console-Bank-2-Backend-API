@@ -22,6 +22,7 @@ public class CheckingsService {
 		log.info("Looking for Checking Accounts with name: "+checking.getName());
 		
 		List<Checking> list = repo.findByName(checking.getName());
+		
 		if(list.isEmpty()){			
 		log.info("Unique name is valid: "+checking.getName());
 		
@@ -33,9 +34,8 @@ public class CheckingsService {
 		}
 	}
 	
-	public void createAccount(Checking checking) {
+	public void createCheckingsAccount(Checking checking) {
 		log.info("Creating Checking Account: "+checking.getName());
-
 		repo.save(checking);
 		return;
 	}

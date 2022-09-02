@@ -12,6 +12,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,8 +26,10 @@ public class Checking {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private double balance;
+	
 	@ManyToOne
 	@JoinColumn(name = "userid", referencedColumnName = "id")
+	@JsonIgnore
 	private BankUser user;
 	private String name;
 	private Timestamp creationdate;
