@@ -22,9 +22,10 @@ public class Saving {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private double balance;
-	private double rate;
-	private Timestamp date;
+	private double intrestrate;
 	@ManyToOne
 	@JoinColumn(name = "userid", referencedColumnName = "id")
 	private BankUser user;
+	private Timestamp creationdate;
+
 }

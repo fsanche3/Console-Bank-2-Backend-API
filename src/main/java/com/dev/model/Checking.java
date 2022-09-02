@@ -23,10 +23,11 @@ public class Checking {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	private Timestamp date;
 	private double balance;
 	@ManyToOne
 	@JoinColumn(name = "userid", referencedColumnName = "id")
 	private BankUser user;
-	
+	private String name;
+	private Timestamp creationdate;
+
 }

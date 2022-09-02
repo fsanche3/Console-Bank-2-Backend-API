@@ -24,12 +24,10 @@ public class AuthController {
 
 	private JwtUtil jwtUtil;
 	private BankUserService userServ;
-	private BankUserRepo repo;
 
-	public AuthController(JwtUtil jwtUtil, BankUserService userServ, BankUserRepo repo) {
+	public AuthController(JwtUtil jwtUtil, BankUserService userServ) {
 		this.jwtUtil = jwtUtil;
 		this.userServ = userServ;
-		this.repo = repo;
 	}
 
 	@PostMapping()

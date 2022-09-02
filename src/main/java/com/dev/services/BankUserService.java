@@ -31,7 +31,7 @@ public class BankUserService {
 
 		boolean check;
 		List<BankUser> list = userRepo.findByUsername(user.getUsername());
-		if(!list.isEmpty()) {
+		if(list.isEmpty()) {
 		userRepo.save(user);
 		check = true;
 		
@@ -63,5 +63,9 @@ public class BankUserService {
 		log.info("Login complete");
 		return new BankUser(userList.get(0).getId(), userList.get(0).getName(), userList.get(0).getUsername(), userList.get(0).getPassword(), userList.get(0).getEmail());	
 		
+	}
+	
+	public Optional<BankUser> findById(int id) {
+		return userRepo.findById(id);
 	}
 }
