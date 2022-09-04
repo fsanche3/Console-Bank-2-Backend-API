@@ -32,21 +32,10 @@ public class CheckingTransactions {
 	private double total;
 	private double transacted;
 	@ManyToOne
-	@JoinColumn(name = "checkingsid", referencedColumnName = "id")
+	@JoinColumn(name = "checkingsid")
 	@JsonIgnore
-	private Checking checkings;
+	private Checking checkingsid;
 	private Timestamp date;
-	
-	public CheckingTransactions(int id, String signal, double total, double transacted, Checking checkings,
-			Timestamp date) {
-		super();
-		this.id = id;
-		this.signal = signal;
-		this.total = total;
-		this.transacted = transacted;
-		this.checkings = checkings;
-		this.date = date;
-	}
 	
 	
 }

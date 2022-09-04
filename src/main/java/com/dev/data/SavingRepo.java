@@ -11,4 +11,6 @@ import com.dev.model.Saving;
 public interface SavingRepo extends JpaRepository<Saving, Integer> {
 
 	List<Saving> findByName(String name);
+	
+	List<Saving> findByid(int id);
 }

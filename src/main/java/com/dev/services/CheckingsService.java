@@ -7,12 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.dev.data.CheckingRepo;
-import com.dev.data.CheckingsTransactionRepo;
 import com.dev.model.Checking;
-import com.dev.model.CheckingTransactions;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,11 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 public class CheckingsService {
 	
 	private CheckingRepo repo;
-	private CheckingsTransactionRepo transactionsRepo;
 	
-	public CheckingsService(CheckingRepo repo, CheckingsTransactionRepo transactionsRepo) {
+	
+	public CheckingsService(CheckingRepo repo) {
 		this.repo = repo;
-		this.transactionsRepo = transactionsRepo;
 	}
 	
 	public boolean findByName(Checking checking) {
@@ -43,9 +39,14 @@ public class CheckingsService {
 		}
 	}
 	
-	public void createCheckingsAccount(Checking checking) {
-		log.info("Creating Checking Account: "+checking.getName());
+	public void upsert(Checking checking) {
+		log.info("upsert Checking Account: "+checking.getName());
 		repo.save(checking);
+		return;
+	}
+	
+	public void remove(Checking checking) {
+		repo.delete(checking);
 		return;
 	}
 	
@@ -54,14 +55,9 @@ public class CheckingsService {
 		return repo.findById(id);
 
 	}
-	
-	public void deposit(Checking checking) {
-						
-		log.info("Depositing into Checking Account: "+checking.getId());
-		repo.save(checking);		
-	
-		return;
-	}
 		
+	public List<Checking> getByUserId(int id){
+		return repo.findByid(id);
+	}
 
 }

@@ -12,4 +12,6 @@ import com.dev.model.Checking;
 public interface CheckingRepo extends JpaRepository<Checking, Integer> {
 
 	List<Checking> findByName(String name);
+	
+	List<Checking> findByid(int id);
 }

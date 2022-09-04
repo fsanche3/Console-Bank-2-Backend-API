@@ -23,13 +23,6 @@ public class CheckingsTransactionService {
 	
 	public void upsert(Checking checking, double deposited) {
 		
-		CheckingTransactions transaction = new CheckingTransactions(0, "+", checking.getBalance(), deposited,
-				checking, Timestamp.valueOf(LocalDateTime.now()));
-		
-		transaction.setCheckings(checking);
-		
-		log.info("Adding transaction for Checkings Account: "+ transaction.getCheckings());
-		repo.save(transaction);
 	}
 
 }

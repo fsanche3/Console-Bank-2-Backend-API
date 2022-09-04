@@ -1,10 +1,12 @@
 package com.dev.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.dev.data.SavingRepo;
+import com.dev.model.Checking;
 import com.dev.model.Saving;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +36,24 @@ public class SavingsService {
 		}
 	}
 	
-	public void createSavingsAccount(Saving saving) {
-		log.info("Creating Savings Account: "+saving.getName());
+	public Optional<Saving> findById(int i) {
+		return repo.findById(i);
+	}
+	
+	public void remove(Saving saving) {
+		repo.delete(saving);
+		return;
+	}
+	
+	public void upsert(Saving saving) {
+		log.info("upsert Savings Account: "+saving.getName());
 		repo.save(saving);
 		return;
 	}
 	
+	public List<Saving> getByUserId(int id){
+		return repo.findByid(id);
+	}
 	
 	
 	
