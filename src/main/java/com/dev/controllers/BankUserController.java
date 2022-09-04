@@ -54,7 +54,7 @@ public class BankUserController {
 	}
 
 	@PostMapping(path = "/register")
-	public ResponseEntity<Boolean> registerFreelancerPost(@RequestBody BankUser body) {
+	public ResponseEntity<Boolean> registerUser(@RequestBody BankUser body) {
 
 		boolean usernameDoesNotExist = userServ.verifyRegistration(body);
 		if (usernameDoesNotExist) {
