@@ -1,9 +1,13 @@
 package com.dev.model;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,7 +23,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="checkings") @AllArgsConstructor @NoArgsConstructor @Data
+@Table(name="checkings") @Data @NoArgsConstructor
 public class Checking {
 
 	@Id
@@ -33,9 +37,31 @@ public class Checking {
 	private String name;
 	private Timestamp creationdate;
 	
-	@OneToMany
+
+	@OneToMany()
 	@JoinColumn(name="checkingsid")
 	@JsonIgnore
 	private List<CheckingTransactions> checkTransactions;
+	
 
+	public Checking(int id, double balance, BankUser user, String name, Timestamp creationdate, List<CheckingTransactions> checkTransactions) {
+		super();
+		this.id = id;
+		this.balance = balance;
+		this.user = user;
+		this.name = name;
+		this.creationdate = creationdate;
+		this.checkTransactions = new ArrayList<>();
+	}
+
+
+	public Checking(Checking checkingsid) {
+		this.id =checkingsid.getId();
+		this.balance = checkingsid.getBalance();
+		this.user = checkingsid.getUser();
+		this.name = checkingsid.getName();
+		this.creationdate = checkingsid.getCreationdate();
+		this.checkTransactions = checkingsid.getCheckTransactions();
+
+	}
 }
