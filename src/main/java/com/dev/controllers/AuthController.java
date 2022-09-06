@@ -14,6 +14,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.dev.data.BankUserRepo;
 import com.dev.model.BankUser;
+import com.dev.models.dtos.BankUserDTO;
 import com.dev.models.dtos.LoginRequest;
 import com.dev.services.BankUserService;
 import com.dev.utils.JwtUtil;
@@ -31,11 +32,12 @@ public class AuthController {
 	}
 
 	@PostMapping()
-	public ResponseEntity<String> loginPost(@RequestBody LoginRequest body) {
+	public ResponseEntity<BankUserDTO> loginPost(@RequestBody LoginRequest body) {
 
 		String token = "";
 
 		BankUser user = userServ.verifyAuth(body);
+		BankUserDTO userDto = new BankUserDTO(user);
 		
 		if (user != null) {
 			
@@ -45,7 +47,7 @@ public class AuthController {
 			token = builder.withIssuer("auth0").withClaim("id", user.getId()).withClaim("name", user.getName())
 					.withClaim("username", user.getUsername()).withClaim("email", user.getEmail()).sign(algorithm);
 			
-			return ResponseEntity.status(200).header("Auth", token).body(token);
+			return ResponseEntity.status(200).header("Auth", token).body(userDto);
 		} else {
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 
