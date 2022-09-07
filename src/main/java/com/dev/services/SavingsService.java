@@ -52,7 +52,7 @@ public class SavingsService {
 	}
 	
 	public List<Saving> getByUserId(int id){
-		return repo.findByid(id);
+		return repo.findByUserId(id);
 	}
 	
 	

@@ -38,11 +38,6 @@ public class Checking {
 	private Timestamp creationdate;
 	
 
-	@OneToMany
-	@JoinColumn(name="checkingsid")
-	@JsonIgnore
-	private List<CheckingTransactions> checkTransactions;
-	
 
 	
 }

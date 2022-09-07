@@ -34,8 +34,4 @@ public class Saving {
 	private String name;
 	private Timestamp creationdate;
 
-	@OneToMany
-	@JoinColumn(name="savingsid")
-	@JsonIgnore
-	private List<SavingTransactions> savTransactions;
 }

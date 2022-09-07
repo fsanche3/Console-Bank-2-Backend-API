@@ -106,7 +106,7 @@ public class AccountsController {
 	}
 
 	@PostMapping(path = "/create_checkings")
-	public ResponseEntity<Checking> createCheckings(@RequestBody Checking checking,
+	public ResponseEntity<Boolean> createCheckings(@RequestBody Checking checking,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
 
@@ -114,34 +114,42 @@ public class AccountsController {
 		checking.setUser(userServ.findById(id).get());
 		checking.setCreationdate(Timestamp.valueOf(LocalDateTime.now()));
 
+		if(checking.getBalance() < 0) {
+			checking.setBalance(0);
+		}
+		
 		if (checkServ.findByName(checking)) {
 
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(false);
 
 		} else {
 			checkServ.upsert(checking);
-			return ResponseEntity.status(HttpStatus.OK).body(checking);
+			return ResponseEntity.status(HttpStatus.OK).body(true);
 
 		}
 
 	}
 
 	@PostMapping(path = "/create_savings")
-	public ResponseEntity<Saving> createSavings(@RequestBody Saving saving,
+	public ResponseEntity<Boolean> createSavings(@RequestBody Saving saving,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
 
 		int id = jwt.getId(authorization);
 		saving.setUser(userServ.findById(id).get());
 		saving.setCreationdate(Timestamp.valueOf(LocalDateTime.now()));
+		
+		if(saving.getBalance() < 0) {
+			saving.setBalance(0);
+		}
 
 		if (saveServ.findByName(saving)) {
 
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(null);
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(false);
 
 		} else {
 			saveServ.upsert(saving);
-			return ResponseEntity.status(HttpStatus.OK).body(saving);
+			return ResponseEntity.status(HttpStatus.OK).body(true);
 
 		}
 

@@ -57,7 +57,7 @@ public class CheckingsService {
 	}
 		
 	public List<Checking> getByUserId(int id){
-		return repo.findByid(id);
+		return repo.findByUserId(id);
 	}
 
 }

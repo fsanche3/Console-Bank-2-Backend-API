@@ -12,5 +12,5 @@ public interface SavingRepo extends JpaRepository<Saving, Integer> {
 
 	List<Saving> findByName(String name);
 	
-	List<Saving> findByid(int id);
+	List<Saving> findByUserId(int userid);
 }

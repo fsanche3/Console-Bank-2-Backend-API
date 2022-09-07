@@ -13,5 +13,5 @@ public interface CheckingRepo extends JpaRepository<Checking, Integer> {
 
 	List<Checking> findByName(String name);
 	
-	List<Checking> findByid(int id);
+	List<Checking> findByUserId(int userId);
 }
