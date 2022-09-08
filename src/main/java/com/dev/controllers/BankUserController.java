@@ -73,4 +73,32 @@ public class BankUserController {
 
 	}
 
+	@PutMapping(path = "/change_username/{id}")
+	public ResponseEntity<Boolean> changeUsername(@PathVariable("id") int id, @RequestBody BankUser body,
+			@RequestHeader(value = "Authorization", required = true) String authorization){
+		
+		BankUser user = userServ.findById(id).get();
+		
+		user.setUsername(body.getUsername());
+		
+		userServ.upsert(user);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(true);
+
+	}
+	
+	@PutMapping(path = "/change_email/{id}")
+	public ResponseEntity<Boolean> changeEmail(@PathVariable("id") int id, @RequestBody BankUser body,
+			@RequestHeader(value = "Authorization", required = true) String authorization){
+		
+		BankUser user = userServ.findById(id).get();
+		
+		user.setEmail(body.getEmail());
+		
+		userServ.upsert(user);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(true);
+
+	}
+
 }

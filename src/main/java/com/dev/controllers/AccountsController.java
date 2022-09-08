@@ -2,7 +2,10 @@ package com.dev.controllers;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,21 +48,21 @@ public class AccountsController {
 		this.saveServ = saveServ;
 
 	}
-	
+
 	@GetMapping(path = "/get_checkings/{id}")
 	public ResponseEntity<Checking> getCheckingById(@PathVariable("id") int id,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
-		
+
 		int userId = jwt.getId(authorization);
-		
+
 		Optional<Checking> checking = checkServ.findById(id);
 
 		if (checking.get().getUser().getId() == userId) {
 
-		return ResponseEntity.status(HttpStatus.OK).body(checking.get());
-		
-		}else {
+			return ResponseEntity.status(HttpStatus.OK).body(checking.get());
+
+		} else {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
 		}
 	}
@@ -114,10 +117,10 @@ public class AccountsController {
 		checking.setUser(userServ.findById(id).get());
 		checking.setCreationdate(Timestamp.valueOf(LocalDateTime.now()));
 
-		if(checking.getBalance() < 0) {
+		if (checking.getBalance() < 0) {
 			checking.setBalance(0);
 		}
-		
+
 		if (checkServ.findByName(checking)) {
 
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(false);
@@ -138,8 +141,8 @@ public class AccountsController {
 		int id = jwt.getId(authorization);
 		saving.setUser(userServ.findById(id).get());
 		saving.setCreationdate(Timestamp.valueOf(LocalDateTime.now()));
-		
-		if(saving.getBalance() < 0) {
+
+		if (saving.getBalance() < 0) {
 			saving.setBalance(0);
 		}
 
@@ -154,52 +157,72 @@ public class AccountsController {
 		}
 
 	}
-
-	@PutMapping(path = "/deposit_checkings")
-	public ResponseEntity<Boolean> depositCheckings(@RequestBody Checking checking,
+	
+	@PutMapping(path = "/apply_intrest/{id}")
+	public ResponseEntity<Boolean> applyIntrest(@PathVariable("id") int savingId,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
+		
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(2);
+		Optional<Saving> opt  = saveServ.findById(savingId);
+		
+		double rateEarning = opt.get().getBalance() * opt.get().getIntrestrate();
+		double updatedTotal = rateEarning + opt.get().getBalance(); 
+		updatedTotal = Double.parseDouble(nf.format(updatedTotal));
+		
+		Saving saving = new Saving(opt.get().getId(), updatedTotal, opt.get().getIntrestrate(), opt.get().getUser(),opt.get().getName(), opt.get().getCreationdate());
+		
+		saveServ.upsert(saving);
+		
+		return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+	}
 
-		int id = jwt.getId(authorization);
-		checking.setUser(userServ.findById(id).get());
+	@PutMapping(path = "/deposit_checkings/{id}")
+	public ResponseEntity<Boolean> depositCheckings(@RequestBody Checking checking, @PathVariable("id") int checkingId,
+			@RequestHeader(value = "Authorization", required = true) String authorization)
+			throws UnsupportedEncodingException {
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(2);
+		Optional<Checking> opt = checkServ.findById(checkingId);
 
-		Optional<Checking> opt = checkServ.findById(checking.getId());
-		checking.setCreationdate(opt.get().getCreationdate());
-
-		if (opt.get().getBalance() > checking.getBalance()) {
+		if (checking.getBalance() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
 
-			double deposited = checking.getBalance() - opt.get().getBalance();
+			double total = checking.getBalance() + opt.get().getBalance();
+			total = Double.parseDouble(nf.format(total));
+			Checking checker = new Checking(opt.get().getId(), total, opt.get().getUser(), opt.get().getName(),
+					opt.get().getCreationdate());
 
-			checkServ.upsert(checking);
+			checkServ.upsert(checker);
 
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 		}
 
 	}
 
-	@PutMapping(path = "/deposit_savings")
-	public ResponseEntity<Boolean> depositSavings(@RequestBody Saving saving,
+	@PutMapping(path = "/deposit_savings/{id}")
+	public ResponseEntity<Boolean> depositSavings(@RequestBody Saving saving, @PathVariable("id") int savingId,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
+		
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(2);
+		Optional<Saving> opt = saveServ.findById(savingId);
 
-		int id = jwt.getId(authorization);
-		saving.setUser(userServ.findById(id).get());
-
-		Optional<Saving> opt = saveServ.findById(saving.getId());
-		saving.setCreationdate(opt.get().getCreationdate());
-		saving.setIntrestrate(opt.get().getIntrestrate());
-
-		if (opt.get().getBalance() > saving.getBalance()) {
+		if (saving.getBalance() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
+			double total = saving.getBalance() + opt.get().getBalance();
+			total  = Double.parseDouble(nf.format(total));
+			
+			Saving saver = new Saving(opt.get().getId(), total, opt.get().getIntrestrate(), opt.get().getUser(),
+					opt.get().getName(), opt.get().getCreationdate());
 
-			double deposited = saving.getBalance() - opt.get().getBalance();
-
-			saveServ.upsert(saving);
+			saveServ.upsert(saver);
 
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 
@@ -219,7 +242,7 @@ public class AccountsController {
 		saving.setCreationdate(opt.get().getCreationdate());
 		saving.setIntrestrate(opt.get().getIntrestrate());
 
-		if (opt.get().getBalance() < saving.getBalance()) {
+		if (opt.get().getBalance() < saving.getBalance() || saving.getBalance() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
@@ -244,7 +267,7 @@ public class AccountsController {
 		Optional<Checking> opt = checkServ.findById(checking.getId());
 		checking.setCreationdate(opt.get().getCreationdate());
 
-		if (opt.get().getBalance() < checking.getBalance()) {
+		if (opt.get().getBalance() < checking.getBalance() || checking.getBalance() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
@@ -293,5 +316,3 @@ public class AccountsController {
 	}
 
 }
-
-

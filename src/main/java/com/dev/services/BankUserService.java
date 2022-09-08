@@ -68,4 +68,9 @@ public class BankUserService {
 	public Optional<BankUser> findById(int id) {
 		return userRepo.findById(id);
 	}
+	
+	public void upsert(BankUser user) {
+		userRepo.save(user);
+		return;
+	}
 }
