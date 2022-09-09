@@ -5,6 +5,7 @@ HELP.md
 !**/src/test/**/target/
 
 application.properties
+target/
 
 ### STS ###
 .apt_generated
