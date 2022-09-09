@@ -37,10 +37,9 @@ public class AuthController {
 		String token = "";
 
 		BankUser user = userServ.verifyAuth(body);
-		BankUserDTO userDto = new BankUserDTO(user);
 		
 		if (user != null) {
-			
+			BankUserDTO userDto = new BankUserDTO(user);
 			JWTCreator.Builder builder = jwtUtil.getJwtBuilder();
 			Algorithm algorithm = Algorithm.HMAC256("franklyn");
 
