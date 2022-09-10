@@ -1,11 +1,11 @@
 package com.dev.controllers;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
-import java.util.Formatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,8 +117,8 @@ public class AccountsController {
 		checking.setUser(userServ.findById(id).get());
 		checking.setCreationdate(Timestamp.valueOf(LocalDateTime.now()));
 
-		if (checking.getBalance() < 0) {
-			checking.setBalance(0);
+		if (checking.getBalance().intValue() < 0) {
+			checking.setBalance(BigDecimal.valueOf(0));
 		}
 
 		if (checkServ.findByName(checking)) {
@@ -142,8 +142,8 @@ public class AccountsController {
 		saving.setUser(userServ.findById(id).get());
 		saving.setCreationdate(Timestamp.valueOf(LocalDateTime.now()));
 
-		if (saving.getBalance() < 0) {
-			saving.setBalance(0);
+		if (saving.getBalance().intValue() < 0) {
+			saving.setBalance(BigDecimal.valueOf(0));
 		}
 
 		if (saveServ.findByName(saving)) {
@@ -163,17 +163,19 @@ public class AccountsController {
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
 		
-		NumberFormat nf = NumberFormat.getInstance();
-		nf.setMaximumFractionDigits(2);
+        MathContext m = new MathContext(8); 
+
 		Optional<Saving> opt  = saveServ.findById(savingId);
 		
-		double rateEarning = opt.get().getBalance() * opt.get().getIntrestrate();
-		double updatedTotal = rateEarning + opt.get().getBalance(); 
-		updatedTotal = Double.parseDouble(nf.format(updatedTotal));
+		BigDecimal total = opt.get().getBalance();
+		BigDecimal rate = new BigDecimal(opt.get().getIntrestrate());
+		BigDecimal earnings = total.multiply(rate);
+		total = earnings.add(total);
+		total = total.round(m);
 		
-		Saving saving = new Saving(opt.get().getId(), updatedTotal, opt.get().getIntrestrate(), opt.get().getUser(),opt.get().getName(), opt.get().getCreationdate());
-		
-		saveServ.upsert(saving);
+		opt.get().setBalance(total);
+	
+		saveServ.upsert(opt.get());
 		
 		return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 	}
@@ -182,21 +184,23 @@ public class AccountsController {
 	public ResponseEntity<Boolean> depositCheckings(@RequestBody Checking checking, @PathVariable("id") int checkingId,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
-		NumberFormat nf = NumberFormat.getInstance();
-		nf.setMaximumFractionDigits(2);
+		
+		MathContext m = new MathContext(6); 
+		
 		Optional<Checking> opt = checkServ.findById(checkingId);
 
-		if (checking.getBalance() < 0) {
+		if (checking.getBalance().intValue() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
+			
+			BigDecimal total = opt.get().getBalance();
+			total = total.add(checking.getBalance());
+			total  = total.round(m);
 
-			double total = checking.getBalance() + opt.get().getBalance();
-			total = Double.parseDouble(nf.format(total));
-			Checking checker = new Checking(opt.get().getId(), total, opt.get().getUser(), opt.get().getName(),
-					opt.get().getCreationdate());
-
-			checkServ.upsert(checker);
+			opt.get().setBalance(total);
+			
+			checkServ.upsert(opt.get());
 
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 		}
@@ -208,73 +212,75 @@ public class AccountsController {
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
 		
-		NumberFormat nf = NumberFormat.getInstance();
-		nf.setMaximumFractionDigits(2);
+		MathContext m = new MathContext(6); 
+
 		Optional<Saving> opt = saveServ.findById(savingId);
 
-		if (saving.getBalance() < 0) {
+		if (saving.getBalance().intValue() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
-			double total = saving.getBalance() + opt.get().getBalance();
-			total  = Double.parseDouble(nf.format(total));
+			BigDecimal total = opt.get().getBalance();
+			total = total.add(saving.getBalance());
+			total  = total.round(m);
+		
+			opt.get().setBalance(total);
+
+			saveServ.upsert(opt.get());
+
+			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+
+		}
+
+	}
+
+	@PutMapping(path = "/withdrawl_savings/{id}")
+	public ResponseEntity<Boolean> withdrawlSavings(@RequestBody Saving saving, @PathVariable("id") int savingId,
+			@RequestHeader(value = "Authorization", required = true) String authorization)
+			throws UnsupportedEncodingException {
+		
+		MathContext m = new MathContext(6); 
+
+		Optional<Saving> opt = saveServ.findById(savingId);
+
+		if (opt.get().getBalance().intValue() < saving.getBalance().intValue()|| saving.getBalance().intValue() < 0) {
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
+
+		} else {
+
+			BigDecimal total = opt.get().getBalance();
+			total = total.add(saving.getBalance().negate());
+			total = total.round(m);
+			opt.get().setBalance(total);
+
+
+			saveServ.upsert(opt.get());
+
+			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+
+		}
+	}
+
+	@PutMapping(path = "/withdrawl_checkings/{id}")
+	public ResponseEntity<Boolean> withdrawlCheckings(@RequestBody Checking checking,@PathVariable("id") int checkingId,
+			@RequestHeader(value = "Authorization", required = true) String authorization)
+			throws UnsupportedEncodingException {
+
+		MathContext m = new MathContext(6); 
+
+		Optional<Checking> opt = checkServ.findById(checkingId);
+
+		if (opt.get().getBalance().doubleValue() < checking.getBalance().doubleValue() || checking.getBalance().intValue() < 0) {
+			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
+
+		} else {
 			
-			Saving saver = new Saving(opt.get().getId(), total, opt.get().getIntrestrate(), opt.get().getUser(),
-					opt.get().getName(), opt.get().getCreationdate());
-
-			saveServ.upsert(saver);
-
-			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
-
-		}
-
-	}
-
-	@PutMapping(path = "/withdrawl_savings")
-	public ResponseEntity<Boolean> withdrawlSavings(@RequestBody Saving saving,
-			@RequestHeader(value = "Authorization", required = true) String authorization)
-			throws UnsupportedEncodingException {
-
-		int id = jwt.getId(authorization);
-		saving.setUser(userServ.findById(id).get());
-
-		Optional<Saving> opt = saveServ.findById(saving.getId());
-		saving.setCreationdate(opt.get().getCreationdate());
-		saving.setIntrestrate(opt.get().getIntrestrate());
-
-		if (opt.get().getBalance() < saving.getBalance() || saving.getBalance() < 0) {
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
-
-		} else {
-
-			double withdrawn = saving.getBalance() - opt.get().getBalance();
-
-			saveServ.upsert(saving);
-
-			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
-
-		}
-	}
-
-	@PutMapping(path = "/withdrawl_checkings")
-	public ResponseEntity<Boolean> withdrawlCheckings(@RequestBody Checking checking,
-			@RequestHeader(value = "Authorization", required = true) String authorization)
-			throws UnsupportedEncodingException {
-
-		int id = jwt.getId(authorization);
-		checking.setUser(userServ.findById(id).get());
-
-		Optional<Checking> opt = checkServ.findById(checking.getId());
-		checking.setCreationdate(opt.get().getCreationdate());
-
-		if (opt.get().getBalance() < checking.getBalance() || checking.getBalance() < 0) {
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
-
-		} else {
-
-			double withdrawn = checking.getBalance() - opt.get().getBalance();
-
-			checkServ.upsert(checking);
+			BigDecimal total = opt.get().getBalance();
+			total = total.add(checking.getBalance().negate());
+			total = total.round(m);
+			
+			opt.get().setBalance(total);
+			checkServ.upsert(opt.get());
 
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 
@@ -289,8 +295,11 @@ public class AccountsController {
 		Optional<Checking> delete = checkServ.findById(i);
 
 		if (delete.get() != null) {
+			
 			checkServ.remove(delete.get());
+			
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+			
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Boolean.FALSE);
 

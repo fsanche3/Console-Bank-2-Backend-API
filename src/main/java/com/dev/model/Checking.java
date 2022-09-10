@@ -1,5 +1,6 @@
 package com.dev.model;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,14 +30,13 @@ public class Checking {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
-	private double balance;	
+	private BigDecimal balance;	
+	private String name;
+	private Timestamp creationdate;
 	@ManyToOne
 	@JoinColumn(name = "userid", referencedColumnName = "id")
 	@JsonIgnore
 	private BankUser user;
-	private String name;
-	private Timestamp creationdate;
-	
 
 
 	

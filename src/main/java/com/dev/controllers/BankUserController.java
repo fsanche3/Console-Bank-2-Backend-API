@@ -100,5 +100,7 @@ public class BankUserController {
 		return ResponseEntity.status(HttpStatus.OK).body(true);
 
 	}
+	
+	
 
 }
