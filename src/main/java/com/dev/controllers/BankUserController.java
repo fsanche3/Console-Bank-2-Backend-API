@@ -21,11 +21,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dev.data.CheckingTransactionRepo;
 import com.dev.model.BankUser;
 import com.dev.model.Checking;
+import com.dev.model.CheckingTransaction;
 import com.dev.model.Saving;
 import com.dev.models.dtos.BankUserDTO;
 import com.dev.services.BankUserService;
+import com.dev.services.CheckingTransactionService;
 import com.dev.services.CheckingsService;
 import com.dev.services.SavingsService;
 import com.dev.utils.JwtUtil;
@@ -49,7 +52,6 @@ public class BankUserController {
 		this.checkServ = checkServ;
 		this.jwt = jwt;
 		this.saveServ = saveServ;
-
 	}
 
 	@PostMapping(path = "/register")

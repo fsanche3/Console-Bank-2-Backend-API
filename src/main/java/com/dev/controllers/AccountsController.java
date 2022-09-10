@@ -22,9 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dev.model.Checking;
+import com.dev.model.CheckingTransaction;
 import com.dev.model.Saving;
+import com.dev.model.SavingTransaction;
 import com.dev.services.BankUserService;
+import com.dev.services.CheckingTransactionService;
 import com.dev.services.CheckingsService;
+import com.dev.services.SavingTransactionService;
 import com.dev.services.SavingsService;
 import com.dev.utils.JwtUtil;
 
@@ -37,15 +41,19 @@ public class AccountsController {
 
 	private BankUserService userServ;
 	private CheckingsService checkServ;
+	private CheckingTransactionService ctServ;
+	private SavingTransactionService stServ;
 	private SavingsService saveServ;
 	private JwtUtil jwt;
 
 	public AccountsController(BankUserService userServ, CheckingsService checkServ, JwtUtil jwt,
-			SavingsService saveServ) {
+			SavingsService saveServ, CheckingTransactionService ctServ, SavingTransactionService stServ) {
 		this.userServ = userServ;
 		this.checkServ = checkServ;
 		this.jwt = jwt;
 		this.saveServ = saveServ;
+		this.ctServ = ctServ;
+		this.stServ = stServ;
 
 	}
 
@@ -157,26 +165,30 @@ public class AccountsController {
 		}
 
 	}
-	
+
 	@PutMapping(path = "/apply_intrest/{id}")
 	public ResponseEntity<Boolean> applyIntrest(@PathVariable("id") int savingId,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
-		
-        MathContext m = new MathContext(8); 
 
-		Optional<Saving> opt  = saveServ.findById(savingId);
-		
+		MathContext m = new MathContext(8);
+
+		Optional<Saving> opt = saveServ.findById(savingId);
+
 		BigDecimal total = opt.get().getBalance();
 		BigDecimal rate = new BigDecimal(opt.get().getIntrestrate());
 		BigDecimal earnings = total.multiply(rate);
 		total = earnings.add(total);
 		total = total.round(m);
-		
 		opt.get().setBalance(total);
-	
-		saveServ.upsert(opt.get());
 		
+		
+		SavingTransaction st = new SavingTransaction(0, "%", total, earnings,
+				Timestamp.valueOf(LocalDateTime.now()), opt.get());
+		
+		saveServ.upsert(opt.get());
+		stServ.upsert(st);
+
 		return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 	}
 
@@ -184,23 +196,26 @@ public class AccountsController {
 	public ResponseEntity<Boolean> depositCheckings(@RequestBody Checking checking, @PathVariable("id") int checkingId,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
-		
-		MathContext m = new MathContext(6); 
-		
+
+		MathContext m = new MathContext(6);
+
 		Optional<Checking> opt = checkServ.findById(checkingId);
 
 		if (checking.getBalance().intValue() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
-			
+
 			BigDecimal total = opt.get().getBalance();
 			total = total.add(checking.getBalance());
-			total  = total.round(m);
-
+			total = total.round(m);
 			opt.get().setBalance(total);
-			
+
+			CheckingTransaction ct = new CheckingTransaction(0, "+", total, checking.getBalance(),
+					Timestamp.valueOf(LocalDateTime.now()), opt.get());
+
 			checkServ.upsert(opt.get());
+			ctServ.upsert(ct);
 
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 		}
@@ -211,8 +226,8 @@ public class AccountsController {
 	public ResponseEntity<Boolean> depositSavings(@RequestBody Saving saving, @PathVariable("id") int savingId,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
-		
-		MathContext m = new MathContext(6); 
+
+		MathContext m = new MathContext(6);
 
 		Optional<Saving> opt = saveServ.findById(savingId);
 
@@ -222,11 +237,14 @@ public class AccountsController {
 		} else {
 			BigDecimal total = opt.get().getBalance();
 			total = total.add(saving.getBalance());
-			total  = total.round(m);
-		
+			total = total.round(m);
 			opt.get().setBalance(total);
 
+			SavingTransaction st = new SavingTransaction(0, "+", total, saving.getBalance(),
+					Timestamp.valueOf(LocalDateTime.now()), opt.get());
+
 			saveServ.upsert(opt.get());
+			stServ.upsert(st);
 
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 
@@ -238,12 +256,12 @@ public class AccountsController {
 	public ResponseEntity<Boolean> withdrawlSavings(@RequestBody Saving saving, @PathVariable("id") int savingId,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
-		
-		MathContext m = new MathContext(6); 
+
+		MathContext m = new MathContext(6);
 
 		Optional<Saving> opt = saveServ.findById(savingId);
 
-		if (opt.get().getBalance().intValue() < saving.getBalance().intValue()|| saving.getBalance().intValue() < 0) {
+		if (opt.get().getBalance().intValue() < saving.getBalance().intValue() || saving.getBalance().intValue() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
@@ -253,8 +271,11 @@ public class AccountsController {
 			total = total.round(m);
 			opt.get().setBalance(total);
 
+			SavingTransaction st = new SavingTransaction(0, "-", total, saving.getBalance(),
+					Timestamp.valueOf(LocalDateTime.now()), opt.get());
 
 			saveServ.upsert(opt.get());
+			stServ.upsert(st);
 
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 
@@ -262,25 +283,31 @@ public class AccountsController {
 	}
 
 	@PutMapping(path = "/withdrawl_checkings/{id}")
-	public ResponseEntity<Boolean> withdrawlCheckings(@RequestBody Checking checking,@PathVariable("id") int checkingId,
+	public ResponseEntity<Boolean> withdrawlCheckings(@RequestBody Checking checking,
+			@PathVariable("id") int checkingId,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
 
-		MathContext m = new MathContext(6); 
+		MathContext m = new MathContext(6);
 
 		Optional<Checking> opt = checkServ.findById(checkingId);
 
-		if (opt.get().getBalance().doubleValue() < checking.getBalance().doubleValue() || checking.getBalance().intValue() < 0) {
+		if (opt.get().getBalance().doubleValue() < checking.getBalance().doubleValue()
+				|| checking.getBalance().intValue() < 0) {
 			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Boolean.FALSE);
 
 		} else {
-			
+
 			BigDecimal total = opt.get().getBalance();
 			total = total.add(checking.getBalance().negate());
 			total = total.round(m);
-			
 			opt.get().setBalance(total);
+
+			CheckingTransaction ct = new CheckingTransaction(0, "-", total, checking.getBalance(),
+					Timestamp.valueOf(LocalDateTime.now()), opt.get());
+
 			checkServ.upsert(opt.get());
+			ctServ.upsert(ct);
 
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 
@@ -295,11 +322,15 @@ public class AccountsController {
 		Optional<Checking> delete = checkServ.findById(i);
 
 		if (delete.get() != null) {
-			
+
+			CheckingTransaction ct = new CheckingTransaction(0, "x", BigDecimal.valueOf(0), BigDecimal.valueOf(0),
+					Timestamp.valueOf(LocalDateTime.now()), delete.get());
+
 			checkServ.remove(delete.get());
-			
+			ctServ.upsert(ct);
+
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
-			
+
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Boolean.FALSE);
 
@@ -315,8 +346,15 @@ public class AccountsController {
 		Optional<Saving> delete = saveServ.findById(i);
 
 		if (delete.get() != null) {
+
+			SavingTransaction st = new SavingTransaction(0, "x", BigDecimal.valueOf(0), BigDecimal.valueOf(0),
+					Timestamp.valueOf(LocalDateTime.now()), delete.get());
+
 			saveServ.remove(delete.get());
+			stServ.upsert(st);
+
 			return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+
 		} else {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Boolean.FALSE);
 
