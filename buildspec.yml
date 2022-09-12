@@ -7,8 +7,8 @@
 
   post_build:
     commands:
-      - mv target/*.jar ./console-bank-0.0.1-SNAPSHOT.jar
+      - echo Built Cleanly
 
   artifacts:
     files:
-      - console-bank-0.0.1-SNAPSHOT.jar
+      - target/console-bank-0.0.1-SNAPSHOT.jar
