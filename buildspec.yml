@@ -3,7 +3,7 @@
   phases:
     build:
       commands:
-        - mvn clean && mvn verify
+        - mvn clean && mvn package
 
   post_build:
     commands:
