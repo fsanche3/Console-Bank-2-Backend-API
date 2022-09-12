@@ -1,16 +1,13 @@
-version: 0.2
+  version: 0.2
 
-
-phases:
+  phases:
   build:
     commands:
       - mvn clean && mvn verify
 
-
-  post_build:
+   post_build:
     commands:
       - mv target/*.jar ./console-bank-0.0.1-SNAPSHOT.jar
-
 
   artifacts:
     files:
