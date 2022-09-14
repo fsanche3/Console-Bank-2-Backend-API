@@ -305,7 +305,7 @@ public class AccountsController {
 
 		Optional<Checking> delete = checkServ.findById(i);
 
-		if (delete.get() != null) {
+		if (delete.get().getUser() != null) {
 
 			CheckingTransaction ct = new CheckingTransaction(0, "x", BigDecimal.valueOf(0), BigDecimal.valueOf(0),
 					Timestamp.valueOf(LocalDateTime.now()), delete.get());
@@ -329,7 +329,7 @@ public class AccountsController {
 
 		Optional<Saving> delete = saveServ.findById(i);
 
-		if (delete.get() != null) {
+		if (delete.get().getUser() != null) {
 
 			SavingTransaction st = new SavingTransaction(0, "x", BigDecimal.valueOf(0), BigDecimal.valueOf(0),
 					Timestamp.valueOf(LocalDateTime.now()), delete.get());

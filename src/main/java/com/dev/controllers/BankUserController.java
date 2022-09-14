@@ -42,7 +42,6 @@ public class BankUserController {
 
 	private BankUserService userServ;
 	private CheckingsService checkServ;
-	// transactions
 	private SavingsService saveServ;
 	private JwtUtil jwt;
 

@@ -34,12 +34,10 @@ public class TransactionController {
 	private SavingTransactionService stServ;
 	private CheckingsService checkServ;
 	private SavingsService saveServ;
-	private JwtUtil jwt;
 
-	public TransactionController(CheckingsService checkServ, JwtUtil jwt,
+	public TransactionController(CheckingsService checkServ,
 			SavingsService saveServ, CheckingTransactionService ctServ, SavingTransactionService stServ) {
 		this.checkServ = checkServ;
-		this.jwt = jwt;
 		this.saveServ = saveServ;
 		this.ctServ = ctServ;
 		this.stServ = stServ;

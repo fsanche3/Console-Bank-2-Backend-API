@@ -2,6 +2,8 @@ package com.dev.controllers.test;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -146,5 +148,197 @@ public class AccountsControllerTest {
 		.andExpect(status().isNotAcceptable());
 	}
 
+	@Test
+	public void createSavings() throws JsonProcessingException, Exception {
+		Saving saving = new Saving(1, new BigDecimal(-9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(userServ.findById(Mockito.anyInt())).thenReturn(Optional.of(new BankUser()));
+		Mockito.when(savingServ.findByName(Mockito.any())).thenReturn(false);
+	
+		mockMvc.perform(post("/accounts/create_savings").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(saving)))
+		.andExpect(status().isOk());
+	}
+	
+
+	@Test
+	public void cannotCreateSavings() throws JsonProcessingException, Exception {
+		Saving saving = new Saving(1, new BigDecimal(9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(userServ.findById(Mockito.anyInt())).thenReturn(Optional.of(new BankUser()));
+		Mockito.when(savingServ.findByName(Mockito.any())).thenReturn(true);
+	
+		mockMvc.perform(post("/accounts/create_savings").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(saving)))
+		.andExpect(status().isNotAcceptable());
+	}
+	
+	@Test
+	public void applyInterest() throws JsonProcessingException, Exception {
+		Saving saving = new Saving(1, new BigDecimal(9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(savingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(saving));
+		
+		mockMvc.perform(put("/accounts/apply_intrest/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void depositCheckings() throws Exception {
+		Checking checking = new Checking(1, new BigDecimal(1.0),"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+
+		Mockito.when(checkingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(checking));
+		
+		mockMvc.perform(put("/accounts/deposit_checkings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(checking)))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void cannotDepositCheckings() throws Exception {
+		Checking checking = new Checking(1, new BigDecimal(-1.0),"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+
+		Mockito.when(checkingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(checking));
+		
+		mockMvc.perform(put("/accounts/deposit_checkings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(checking)))
+		.andExpect(status().isNotAcceptable());
+	}
+	
+	@Test
+	public void depositSavings() throws Exception {
+		Saving saving = new Saving(1, new BigDecimal(9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+
+		Mockito.when(savingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(saving));
+		
+		mockMvc.perform(put("/accounts/deposit_savings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(saving)))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void cannotDepositSavings() throws Exception {
+		Saving saving = new Saving(1, new BigDecimal(-9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+
+		Mockito.when(savingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(saving));
+		
+		mockMvc.perform(put("/accounts/deposit_savings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(saving)))
+		.andExpect(status().isNotAcceptable());
+	}
+	
+	@Test
+	public void withdrawlSavings() throws JsonProcessingException, Exception {
+		Saving saving = new Saving(1, new BigDecimal(9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(savingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(saving));
+
+		mockMvc.perform(put("/accounts/withdrawl_savings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(saving)))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void cannotWithdrawlSavings() throws JsonProcessingException, Exception {
+		Saving saving = new Saving(1, new BigDecimal(-9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(savingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(saving));
+
+		mockMvc.perform(put("/accounts/withdrawl_savings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(saving)))
+		.andExpect(status().isNotAcceptable());
+	}
+	
+	@Test
+	public void withdrawlCheckings() throws JsonProcessingException, Exception {
+		Checking checking = new Checking(1, new BigDecimal(1.0),"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(checkingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(checking));
+
+		mockMvc.perform(put("/accounts/withdrawl_checkings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(checking)))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void cannotWithdrawlCheckings() throws JsonProcessingException, Exception {
+		Checking checking = new Checking(1, new BigDecimal(-1.0),"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(checkingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(checking));
+
+		mockMvc.perform(put("/accounts/withdrawl_checkings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken)
+				.content(om.writeValueAsString(checking)))
+		.andExpect(status().isNotAcceptable());
+	}
+	
+	@Test
+	public void removeCheckings() throws JsonProcessingException, Exception {
+		Checking checking = new Checking(1, new BigDecimal(1.0),"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(checkingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(checking));
+		
+		mockMvc.perform(delete("/accounts/remove_checkings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void cannotRemoveCheckings() throws JsonProcessingException, Exception {
+		Checking checking = new Checking(1, new BigDecimal(1.0),"name",Timestamp.valueOf(LocalDateTime.now()), null);
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(checkingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(checking));
+		
+		mockMvc.perform(delete("/accounts/remove_checkings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken))
+		.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	public void removeSavings() throws JsonProcessingException, Exception {
+		Saving saving = new Saving(1, new BigDecimal(9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), new BankUser());
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(savingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(saving));
+		
+		mockMvc.perform(delete("/accounts/remove_savings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken))
+		.andExpect(status().isOk());
+	}
+	
+	@Test
+	public void canonotRemoveSavings() throws JsonProcessingException, Exception {
+		Saving saving = new Saving(1, new BigDecimal(9.0), 0.2,"name",Timestamp.valueOf(LocalDateTime.now()), null);
+		String jwtToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJhdXRoMCIsIm5hbWUiOiJGcmFua2x5biBTYW5jaGV6IiwiaWQiOjEsImVtYWlsIjoiZnNhbmNoZTNAb3N3ZWdvLmVkdSIsInVzZXJuYW1lIjoiRnJhbmtseW40QmFua2luZyJ9.5xBMKR3Dl49AU_7Zu2wvnz0ItV7exATYi5rU0MAdmPg";
+		
+		Mockito.when(savingServ.findById(Mockito.anyInt())).thenReturn(Optional.of(saving));
+		
+		mockMvc.perform(delete("/accounts/remove_savings/1").contentType(MediaType.APPLICATION_JSON)
+				.header("Authorization",  jwtToken))
+		.andExpect(status().isNotFound());
+	}
 	
 }
