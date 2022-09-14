@@ -22,7 +22,7 @@ public class ConsoleBankApplication {
 					.allowedOrigins("*")
 					.allowedHeaders("*")
 					.exposedHeaders("Auth")
-					.allowCredentials(true);
+					.allowCredentials(false);
 			}
 		};
 	}

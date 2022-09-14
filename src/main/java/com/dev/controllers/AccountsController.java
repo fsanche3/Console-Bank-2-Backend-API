@@ -61,18 +61,11 @@ public class AccountsController {
 	public ResponseEntity<Checking> getCheckingById(@PathVariable("id") int id,
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
-
-		int userId = jwt.getId(authorization);
-
+		
 		Optional<Checking> checking = checkServ.findById(id);
 
-		if (checking.get().getUser().getId() == userId) {
+		return ResponseEntity.status(HttpStatus.OK).body(checking.get());
 
-			return ResponseEntity.status(HttpStatus.OK).body(checking.get());
-
-		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-		}
 	}
 
 	@GetMapping(path = "/get_savings/{id}")
@@ -80,18 +73,10 @@ public class AccountsController {
 			@RequestHeader(value = "Authorization", required = true) String authorization)
 			throws UnsupportedEncodingException {
 
-		int userId = jwt.getId(authorization);
-
 		Optional<Saving> saving = saveServ.findById(id);
 
-		if (saving.get().getUser().getId() == userId) {
+		return ResponseEntity.status(HttpStatus.OK).body(saving.get());
 
-			return ResponseEntity.status(HttpStatus.OK).body(saving.get());
-
-		} else {
-
-			return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
-		}
 	}
 
 	@GetMapping(path = "/get_checkings")
@@ -181,11 +166,10 @@ public class AccountsController {
 		total = earnings.add(total);
 		total = total.round(m);
 		opt.get().setBalance(total);
-		
-		
-		SavingTransaction st = new SavingTransaction(0, "%", total, earnings,
-				Timestamp.valueOf(LocalDateTime.now()), opt.get());
-		
+
+		SavingTransaction st = new SavingTransaction(0, "%", total, earnings, Timestamp.valueOf(LocalDateTime.now()),
+				opt.get());
+
 		saveServ.upsert(opt.get());
 		stServ.upsert(st);
 
