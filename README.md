@@ -26,7 +26,7 @@
 
 
 ### Test Overview
-![Jacoco Test coverage for Controller/Service layers:](console-bank-jac.png)
+![Jacoco Test coverage for Controller/Service layers:](console-bank-jac.PNG)
 
 ## API Documentation
 - [Endpoint Documentation]()
