@@ -33,6 +33,7 @@
 - [Javadoc Documentation]()
 
 ## Front End
-[Front End UI Repository that leverages this API](https://github.com/220620-java/p2-revWork-UI)
+[Front End UI Repository that leverages this API](https://github.com/fsanche3/Console-Bank-2-Frontend)
 
-## Authors
+## Author
+[Franklyn Sanchez](https://github.com/fsanche3)
