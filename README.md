@@ -25,14 +25,14 @@
 ![ER-Diagram](console-bank-er.PNG)
 
 
-### Test Overview
-- [Jacoco Test coverage for Controller/Service layers]
-[Jacoco Test coverage for Controller/Service layers:](console-bank-jac.PNG)
+### Jacoco Test Overview (Focus: Controllers & Services)
+![Jacoco Test coverage for Controller/Service layers:](console-bank-jac.PNG)
 
 ## API Documentation
-- [Endpoint Documentation]()
+- [Endpoint Documentation](https://studio.apicur.io/preview?aid=76452)
 - [Javadoc Documentation]()
 
 ## Front End
+[Front End UI Repository that leverages this API](https://github.com/220620-java/p2-revWork-UI)
 
 ## Authors
