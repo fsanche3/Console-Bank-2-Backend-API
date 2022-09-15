@@ -6,7 +6,7 @@
 ## Tech Stack
 - [ ] Java 8
 - [ ] Spring Boot
-- [ ] Spring Data/Jpa
+- [ ] Spring Data/JPA
 - [ ] Spring WebMvc
 - [ ] Spring MockMvc
 - [ ] JUnit
