@@ -42,7 +42,7 @@ With API Console-Bank 2.0, BankUser's(Secured with JWT tokens) have the possible
 - [Endpoint Documentation](https://studio.apicur.io/preview?aid=76452)
 
 ## Front End
-[Front End UI Repository that leverages this API](https://github.com/fsanche3/Console-Bank-2-Frontend)
+- [Front End UI Repository that leverages this API](https://github.com/fsanche3/Console-Bank-2-Frontend)
 
 ## Author
 [Franklyn Sanchez](https://github.com/fsanche3)
