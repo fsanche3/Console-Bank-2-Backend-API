@@ -35,7 +35,7 @@ With API Console-Bank 2.0, BankUser's(Secured with JWT tokens) have the possible
 ## ER-Diagram
 ![ER-Diagram](console-bank-er.PNG)
 
-### Jacoco Test Overview (Focus: Controllers & Services)
+### Jacoco Test Overview (Focus: Controllers & Service layers)
 ![Jacoco Test coverage for Controller/Service layers:](console-bank-jac.PNG)
 
 ## API Documentation
