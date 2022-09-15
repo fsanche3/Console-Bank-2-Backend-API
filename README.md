@@ -20,10 +20,20 @@
 - [ ] Git 
 
 ## Description
+With API Console-Bank 2.0, BankUser's(Secured with JWT tokens) have the possible use cases.
 
+ - Register/Login
+ - Edit Profile
+ - Create Checking(s)/Saving(s)
+ - Delete Checking(s)/Saving(s)
+ - View Checking(s)/Saving(s)
+ - Withdrawl Checking(s)/Saving(s)
+ - Deposit Checking(s)/Saving(s)
+ - Apply Interest Saving(s)
+ - View Persisted Transactions Checking(s)/Saving(s)
+ 
 ## ER-Diagram
 ![ER-Diagram](console-bank-er.PNG)
-
 
 ### Jacoco Test Overview (Focus: Controllers & Services)
 ![Jacoco Test coverage for Controller/Service layers:](console-bank-jac.PNG)
