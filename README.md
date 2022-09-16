@@ -1,4 +1,4 @@
-# Console-Bank-App-2 (Backend/API)
+# Console Bank 2.0 (Backend/API)
 
 ## FlowChart
 ![FlowChart](Console-bank-flowchart.PNG)
